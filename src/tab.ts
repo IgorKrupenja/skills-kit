@@ -69,7 +69,7 @@ async function inBrowser(page: Page, args: BrowserArgs, code: TabCode | null): P
     for (const tab of ctx.pages()) {
       try {
         if ((await targetId(tab)) === id) return tab;
-      } catch {}
+      } catch { /* skip a tab that closed meanwhile */ }
     }
     return null;
   }
@@ -82,6 +82,7 @@ async function inBrowser(page: Page, args: BrowserArgs, code: TabCode | null): P
     let tab: Page | null = null;
     for (let i = 0; i < 50 && !tab; i++) {
       tab = await findTab(tid);
+      // eslint-disable-next-line bun/prefer-builtin-sleep -- this runs in playwright-cli's server, so no Bun globals
       if (!tab) await new Promise(resolve => setTimeout(resolve, 100));
     }
     if (!tab) return { ok: false, error: "the new background tab did not appear" };
