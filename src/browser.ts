@@ -9,7 +9,8 @@
  *
  * The arguments go to playwright-cli as they are, after `-s=<session>` (the session is the repo's
  * package name). `open` also gets `--persistent` and a playwright-cli.json: the repo's own if it
- * has one at its root, else this kit's (muted audio, the installed Google Chrome). playwright-cli
+ * has one at its root, else this kit's (muted audio, the installed Google Chrome). A headed `open`
+ * doesn't leave the new browser in front of the user's apps (see openInBackground). playwright-cli
  * runs on Bun, browser server included, so Node isn't needed.
  *
  *     bun node_modules/skills-kit/src/browser.ts list
@@ -61,8 +62,46 @@ export function cliCommand(args: string[], session = SESSION): string[] {
   return command;
 }
 
+/** The bundle ID of the app in front, from LaunchServices; "" off macOS or when it has none. */
+function frontApp(): string {
+  if (process.platform !== "darwin") return "";
+  const run = (cmd: string[]) => Bun.spawnSync(cmd).stdout.toString();
+  return run(["lsappinfo", "info", "-only", "bundleID", run(["lsappinfo", "front"]).trim()]).match(/bundleID="([^"]+)"/)?.[1] ?? "";
+}
+
+/** The Chromium browsers playwright-cli can open: Chrome in any channel, Chromium and Edge. */
+const BROWSER_APP = /^(com\.google\.chrome|org\.chromium|com\.microsoft\.edge)/i;
+
+/**
+ * Run a headed `open` without leaving the new browser in front. macOS brings an app that
+ * Playwright starts to the front, and Playwright's pipe to Chrome rules out starting it in the
+ * background through LaunchServices, so as soon as the browser takes focus this hands it back to
+ * the app that had it, about 0.15 s later. Tabs and navigation don't raise the window, so only
+ * the launch needs this.
+ */
+async function openInBackground(command: string[]): Promise<number> {
+  const before = frontApp();
+  const proc = Bun.spawn(command, { stdio: ["inherit", "inherit", "inherit"] });
+  if (!before || BROWSER_APP.test(before)) return proc.exited;
+  let exitedAt = 0;
+  proc.exited.then(() => { exitedAt = performance.now(); });
+  // Watch until a second after playwright-cli is done, in case the window comes up late.
+  while (!exitedAt || performance.now() - exitedAt < 1000) {
+    const front = frontApp();
+    if (front !== before && BROWSER_APP.test(front)) {
+      Bun.spawnSync(["open", "-b", before]);
+      await Bun.sleep(300); // let the switch land before looking again
+    } else {
+      await Bun.sleep(40);
+    }
+  }
+  return proc.exited;
+}
+
 if (import.meta.main) {
   await ensureInstalled();
-  const proc = Bun.spawn(cliCommand(Bun.argv.slice(2)), { stdio: ["inherit", "inherit", "inherit"] });
-  process.exit(await proc.exited);
+  const args = Bun.argv.slice(2);
+  const command = cliCommand(args);
+  const headedOpen = args.find(a => !a.startsWith("-")) === "open" && args.includes("--headed");
+  process.exit(headedOpen ? await openInBackground(command) : await Bun.spawn(command, { stdio: ["inherit", "inherit", "inherit"] }).exited);
 }

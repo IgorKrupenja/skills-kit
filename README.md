@@ -2,7 +2,7 @@
 
 Shared [Bun](https://bun.sh) helpers for [Agent Skills](https://agentskills.io/home) repos, such as [ai-skills](https://github.com/IgorKrupenja/ai-skills) and [tallinn-dev](https://github.com/IgorKrupenja/tallinn-dev):
 
-- `browser.ts` runs [playwright-cli](https://github.com/microsoft/playwright-cli) on the repo's own browser.
+- `browser.ts` runs [playwright-cli](https://github.com/microsoft/playwright-cli) on the repo's own browser. A headed `open` hands focus straight back to the app you were in, so the new window doesn't stay in front.
 - `tab.ts` gives each caller a background tab of its own in that browser, so parallel chats and agents never act on each other's tabs.
 - `gws.ts` runs [gws](https://github.com/googleworkspace/cli), the Google Workspace CLI, and parses its JSON.
 - `places.ts` turns a venue name into candidate places with their full address, through the [Places API (New)](https://developers.google.com/maps/documentation/places/web-service/text-search). It needs an API key with that API enabled, in `GOOGLE_PLACES_API_KEY`.
