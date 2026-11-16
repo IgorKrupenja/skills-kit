@@ -4,10 +4,11 @@
  *
  * gws keeps its login in ~/.config/gws, one per macOS user, so every copy of it shares the same
  * sign-in. Scripts import `gws()` or `gwsItems()`, which throw on any failure (gws missing, an API
- * error, no answer within the timeout); on the command line, `bun node_modules/skills-kit/gws.ts <args>` runs gws
- * with those arguments. gws's launcher runs on Bun, so Node isn't needed.
+ * error, no answer within the timeout). On the command line,
+ * `bun node_modules/skills-kit/src/gws.ts <args>` runs gws with those arguments. gws's launcher
+ * runs on Bun, so Node isn't needed.
  *
- *     bun node_modules/skills-kit/gws.ts calendar events list --params '{"calendarId": "primary", "maxResults": 5}'
+ *     bun node_modules/skills-kit/src/gws.ts calendar events list --params '{"calendarId": "primary", "maxResults": 5}'
  */
 
 import { REPO, die, resolvePackageFile } from "./browser.ts";

@@ -5,10 +5,16 @@
   "private": true,
   "type": "module",
   "repository": "github:IgorKrupenja/skills-kit",
+  "exports": {
+    "./browser": "./src/browser.ts",
+    "./gws": "./src/gws.ts"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
-  "trustedDependencies": ["@googleworkspace/cli"],
+  "trustedDependencies": [
+    "@googleworkspace/cli"
+  ],
   "dependencies": {
     "@googleworkspace/cli": "^0.22.5",
     "@playwright/cli": "^0.1.24"

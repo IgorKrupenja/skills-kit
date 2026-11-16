@@ -6,7 +6,7 @@ Shared [Bun](https://bun.sh) helpers for [Agent Skills](https://agentskills.io/h
 - `tab.ts` gives each caller a background tab of its own in that browser, so parallel chats and agents never act on each other's tabs.
 - `gws.ts` runs [gws](https://github.com/googleworkspace/cli), the Google Workspace CLI, and parses its JSON.
 
-Everything runs on Bun; Node isn't needed.
+The helpers are in `src/`. Everything runs on Bun; Node isn't needed.
 
 ## Use
 
@@ -19,16 +19,16 @@ bun add github:IgorKrupenja/skills-kit
 Also add `"trustedDependencies": ["@googleworkspace/cli"]` to the repo's `package.json`, so `bun install` downloads gws's binary. Then:
 
 ```bash
-bun node_modules/skills-kit/browser.ts open --headed     # any playwright-cli command
-bun node_modules/skills-kit/tab.ts open my-tab https://example.com
-bun node_modules/skills-kit/tab.ts run my-tab <<'JS'
+bun node_modules/skills-kit/src/browser.ts open --headed     # any playwright-cli command
+bun node_modules/skills-kit/src/tab.ts open my-tab https://example.com
+bun node_modules/skills-kit/src/tab.ts run my-tab <<'JS'
 async (p, env) => p.title()
 JS
-bun node_modules/skills-kit/tab.ts close my-tab
-bun node_modules/skills-kit/gws.ts calendar colors get   # any gws command
+bun node_modules/skills-kit/src/tab.ts close my-tab
+bun node_modules/skills-kit/src/gws.ts calendar colors get   # any gws command
 ```
 
-In scripts, `import { gws, gwsItems } from "skills-kit/gws.ts"`. Each script's header has the details.
+In scripts, `import { gws, gwsItems } from "skills-kit/gws"`. Each script's header has the details.
 
 `bun.lock` pins the kit to a commit; `bun update skills-kit` moves a repo to the latest one.
 

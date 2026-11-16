@@ -12,17 +12,17 @@
  * has one at its root, else this kit's (muted audio, the installed Google Chrome). playwright-cli
  * runs on Bun, browser server included, so Node isn't needed.
  *
- *     bun node_modules/skills-kit/browser.ts list
- *     bun node_modules/skills-kit/browser.ts open https://example.com --headed
- *     bun node_modules/skills-kit/browser.ts screenshot --filename=.playwright-cli/page.png
+ *     bun node_modules/skills-kit/src/browser.ts list
+ *     bun node_modules/skills-kit/src/browser.ts open https://example.com --headed
+ *     bun node_modules/skills-kit/src/browser.ts screenshot --filename=.playwright-cli/page.png
  */
 
 /**
- * The repo using the kit: the folder that holds node_modules/skills-kit (import.meta.dir is this
- * file's real folder). In a checkout of the kit itself, the checkout.
+ * The repo using the kit: the folder that holds node_modules/skills-kit. import.meta.dir is this
+ * file's real folder, <repo>/node_modules/skills-kit/src; in a checkout of the kit, <kit>/src.
  */
 const nodeModules = import.meta.dir.lastIndexOf("/node_modules/");
-export const REPO = nodeModules >= 0 ? import.meta.dir.slice(0, nodeModules) : import.meta.dir;
+export const REPO = nodeModules >= 0 ? import.meta.dir.slice(0, nodeModules) : import.meta.dir.replace(/\/src$/, "");
 /** The browser's session name: the repo's package name, so each repo's browser is easy to tell apart. */
 export const SESSION: string = (await Bun.file(`${REPO}/package.json`).json()).name;
 
